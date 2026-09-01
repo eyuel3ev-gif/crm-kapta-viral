@@ -1,0 +1,35 @@
+# Despliegue en Netlify.
+#
+# Se elige Netlify y no Vercel por una razón concreta: el plan Hobby de Vercel
+# prohíbe el uso comercial en sus términos, y esto es el CRM de un negocio.
+# El plan gratuito de Netlify sí permite uso comercial.
+#
+# Netlify detecta Next.js solo y aplica su runtime; no hace falta plugin.
+
+# Sin `publish`: el runtime de Next.js de Netlify decide dónde está la salida.
+# Fijarlo a ".next" a mano sirve los ficheros como si fueran estáticos y todas
+# las rutas devuelven 404.
+# El codigo vive en app/, no en la raiz del repositorio.
+[build]
+  base = "app"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Los webhooks de Hotmart, ManyChat y Calendly tienen que llegar SIEMPRE al
+# servidor: si alguna capa de caché intermedia responde por él, la compra se
+# pierde sin dejar rastro.
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Cache-Control = "no-store"
+
+# El CRM es interno: no debe salir en Google ni dejarse incrustar.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

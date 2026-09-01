@@ -1,0 +1,15 @@
+# Secretos. NADA de esto puede acabar en el repositorio.
+.env
+.env.*
+!.env.example
+PRODUCCION.env
+
+# Dependencias y compilados
+node_modules/
+.next/
+.netlify/
+.pglite/
+*.tsbuildinfo
+
+# Sistema
+.DS_Store

@@ -1,0 +1,46 @@
+@import 'tailwindcss';
+
+/*
+ * Base visual: negro / gris / blanco.
+ * El color NUNCA decora: solo comunica estado, riesgo o prioridad.
+ * Si algo es verde es porque va bien, no porque quede bonito.
+ */
+@theme {
+  --color-ink: #0a0a0a;
+  --color-ink-soft: #404040;
+  --color-ink-mute: #737373;
+  --color-line: #e5e5e5;
+  --color-surface: #ffffff;
+  --color-canvas: #fafafa;
+
+  --color-positive: #15803d;
+  --color-positive-bg: #f0fdf4;
+  --color-negative: #b91c1c;
+  --color-negative-bg: #fef2f2;
+  --color-warning: #b45309;
+  --color-warning-bg: #fffbeb;
+  --color-info: #1d4ed8;
+  --color-info-bg: #eff6ff;
+  --color-ai: #6d28d9;
+  --color-ai-bg: #f5f3ff;
+}
+
+html, body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+}
+
+/* Tabular para que las columnas de números no bailen al actualizarse. */
+.tnum { font-variant-numeric: tabular-nums; }
+
+::selection { background: #0a0a0a; color: #fff; }
+
+input, textarea, select { font: inherit; }
+
+textarea { field-sizing: content; }

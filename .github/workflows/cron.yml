@@ -1,0 +1,43 @@
+name: Automatizaciones del CRM
+
+# El motor de reglas: crea las llamadas de cualificación, las confirmaciones
+# de 24 h y las tareas de reuniones sin resultado.
+#
+# Va en GitHub Actions y no en el hosting porque el cron de los planes
+# gratuitos suele estar limitado a una ejecución al día, y la confirmación de
+# 24 h necesita revisarse cada pocos minutos para no llegar tarde.
+#
+# Todas las reglas son idempotentes: ejecutar esto 144 veces al día produce
+# exactamente las mismas tareas que ejecutarlo una. La protección está en la
+# `dedupe_key` de cada tarea, no en la frecuencia.
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'    # cada 10 minutos
+  workflow_dispatch:           # y a mano desde la pestaña Actions
+
+concurrency:
+  group: crm-cron
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ejecutar reglas
+        run: |
+          code=$(curl -s -o /tmp/out.json -w '%{http_code}' \
+            --max-time 120 \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.CRM_URL }}/api/cron")
+
+          echo "HTTP $code"
+          cat /tmp/out.json
+
+          # Un fallo silencioso aquí significa que nadie confirma las reuniones
+          # de mañana y el show rate cae sin que se sepa por qué.
+          if [ "$code" != "200" ]; then
+            echo "::error::El cron del CRM devolvió $code"
+            exit 1
+          fi

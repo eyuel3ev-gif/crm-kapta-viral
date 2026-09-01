@@ -1,0 +1,6 @@
+node_modules/
+.next/
+.pglite/
+.env.local
+*.tsbuildinfo
+.env.neon
