@@ -4,7 +4,9 @@ Sistema operativo comercial del lanzamiento de YouTube Faceless.
 
 Estado: **funciona.** Compila, tipa, el schema pasa 21 comprobaciones y las
 tres interfaces se han recorrido en el navegador con datos reales.
-Pendiente: ejecutarlo contra la base de datos de producción.
+
+📄 **El contexto completo del proyecto está en [`../CONTEXTO.md`](../CONTEXTO.md)**
+— arquitectura, reglas de negocio, incoherencias conocidas y preguntas abiertas.
 
 ---
 
@@ -17,21 +19,30 @@ npm run dev
 
 Y ya está. **No hace falta base de datos ni configurar nada.** Sin
 `DATABASE_URL`, el CRM levanta un Postgres embebido en `./.pglite`, crea el
-schema y siembra 60 leads repartidos por todo el embudo en el primer arranque.
+schema y siembra 78 leads repartidos por todo el embudo en el primer arranque
+(60 del lanzamiento y 18 del evergreen).
 
-Abre `http://localhost:3000`. En `/login` sale un selector de usuario:
-**Álvar** (Propietario + Setter), **Ryan** (Propietario + Setter) o
-**Iwelo** (Closer). Cada uno ve su propia interfaz.
+Abre `http://localhost:3000`. Con `DEV_AUTH=true` en `/login` sale un selector
+de usuario sin contraseña. El seed crea cinco personas, todas con un solo rol:
+**Álvar Sola**, **Eyuel** y **Ryan** (Propietario), **Darío** (Closer) y
+**Ángel** (Setter). Cada rol ve su propia interfaz.
+
+La contraseña inicial de las cinco es `CambiarEsto2026!`, pensada para
+cambiarse el primer día con `npm run user:password`.
 
 ### Con Postgres real
 
-Cuando toque conectar Supabase:
+Contra la base de **Neon**:
 
 ```bash
 cp .env.example .env.local     # rellenar DATABASE_URL
 npm run db:push                # crea las tablas
-npm run db:seed                # datos de ejemplo (opcional)
+npm run db:init                # secuencia + CHECK que drizzle-kit no genera
 ```
+
+> ⚠️ **`npm run db:seed` NO es un paso de puesta en marcha.** Empieza con un
+> `TRUNCATE` de las 29 tablas: contra producción borra todos los datos. Úsalo
+> solo contra una base desechable.
 
 Con `DATABASE_URL` puesta, el modo embebido se desactiva solo y las
 migraciones se aplican a mano, que es como debe ser en producción.
@@ -112,7 +123,6 @@ Vienen de `spec/00-DECISIONES-CERRADAS.md`. No son estilo, son integridad:
 | No fusionar personas por nombre parecido | `lead_merge_candidates` |
 | Un evento atrasado no degrada un estado avanzado | `domain/state.ts` |
 | Perder exige motivo; seguir exige fecha y acción | `validateResult()` |
-| La transcripción sobrevive a cualquier fallo | se guarda antes que nada |
 | Los permisos se validan en el servidor | `assertCan()` en cada action |
 
 ---
@@ -125,7 +135,9 @@ Deliberadamente fuera del V0 (ver `spec/01-PLAN-4-SEMANAS.md`):
 - Sincronización de Meta y CAPI hacia Meta
 - Informes GPT y productividad del equipo
 - Calendario global, exportaciones, notificaciones
-- Supabase Auth real (hoy: selector de usuario en desarrollo)
+- Proveedor de identidad externo. La autenticación propia (scrypt + cookie
+  firmada con HMAC) **sí está construida** en `src/lib/auth.ts`; lo que no hay
+  es SSO ni MFA
 
 ---
 
@@ -157,8 +169,8 @@ en medio segundo.
 5. Dominio: en Name.com, `CNAME  crm → <sitio>.netlify.app`
 6. Cron: en GitHub, secretos `CRM_URL` y `CRON_SECRET`. El workflow ya está en
    `.github/workflows/cron.yml` y corre cada 10 minutos.
-7. Auth real: `DEV_AUTH=false` y conectar el proveedor en `src/lib/auth.ts`
-   (está aislado en una función; el resto de la app no cambia).
+7. Auth: `DEV_AUTH=false` y `SESSION_SECRET` con al menos 32 caracteres
+   (`openssl rand -base64 48`). Sin ese secreto la app no arranca.
 8. `landing/capture.js` en la landing **antes del primer euro de ads**.
 
 ### Webhooks
