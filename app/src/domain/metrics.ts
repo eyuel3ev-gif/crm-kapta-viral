@@ -46,6 +46,10 @@ export type Funnel = {
   meetingsHeld: number;
   noShows: number;
   salesWon: number;
+  /** Ventas que SÍ pasaron por una reunión. Es el único numerador válido
+   *  para un close rate sobre reuniones: contar las compras directas de
+   *  Hotmart ahí produce ratios por encima del 100 %, que es imposible. */
+  salesWonWithMeeting: number;
   revenueCents: number;
 };
 
@@ -108,6 +112,7 @@ export async function getFunnel(range: Range): Promise<Funnel> {
 
   const [saleCounts] = await db.select({
     won: sql<number>`count(*)::int`,
+    wonWithMeeting: sql<number>`count(*) filter (where ${sales.meetingId} is not null)::int`,
     revenue: sql<number>`coalesce(sum(${sales.amountCents}), 0)::int`,
   })
     .from(sales)
@@ -123,6 +128,7 @@ export async function getFunnel(range: Range): Promise<Funnel> {
     meetingsHeld: meetingCounts.held,
     noShows: meetingCounts.noShow,
     salesWon: saleCounts.won,
+    salesWonWithMeeting: saleCounts.wonWithMeeting,
     revenueCents: saleCounts.revenue,
   };
 }
@@ -159,8 +165,9 @@ export async function getKpis(range: Range): Promise<Kpis> {
     showRate: ratio(f.meetingsHeld, eligibleForShow),
     // Dos close rates distintos, etiquetados. Un lead con 3 reuniones cuenta
     // 3 veces en el primero y 1 en el segundo: son preguntas diferentes.
-    closeRateMeetings: ratio(f.salesWon, f.meetingsHeld),
-    closeRateLeads: ratio(f.salesWon, f.leadsWithMeeting),
+    // Ventas CON reunión entre reuniones realizadas. Nunca puede pasar del 100 %.
+    closeRateMeetings: ratio(f.salesWonWithMeeting, f.meetingsHeld),
+    closeRateLeads: ratio(f.salesWonWithMeeting, f.leadsWithMeeting),
     avgTicketCents: f.salesWon ? Math.round(f.revenueCents / f.salesWon) : null,
     sampleWarning,
   };
@@ -206,7 +213,10 @@ export function funnelStages(f: Funnel, opts: { withMeetings?: boolean } = {}): 
     ...base,
     { key: 'booked', label: 'Reuniones agendadas', value: f.leadsWithMeeting, convFromPrev: ratio(f.leadsWithMeeting, f.qualifiedLeads) },
     { key: 'held', label: 'Reuniones realizadas', value: f.meetingsHeld, convFromPrev: ratio(f.meetingsHeld, f.meetingsBooked) },
-    { key: 'won', label: 'Ventas', value: f.salesWon, convFromPrev: ratio(f.salesWon, f.meetingsHeld) },
+    // El embudo de reuniones termina en las ventas que vinieron de una reunión.
+    // Meter aquí las compras directas dibuja una conversión superior al 100 %.
+    { key: 'won', label: 'Ventas en reunión', value: f.salesWonWithMeeting,
+      convFromPrev: ratio(f.salesWonWithMeeting, f.meetingsHeld) },
   ];
 }
 

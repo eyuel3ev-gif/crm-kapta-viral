@@ -1,0 +1,281 @@
+<meta charset="utf-8">
+<title>Comisi&oacute;n de agosto 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+
+<style>
+  /* Todo el texto va en entidades HTML ASCII. Un fichero suelto que se
+     reenvia por correo puede acabar leido como Latin-1, y ahi los acentos
+     y el signo menos se convierten en basura. */
+  :root {
+    --ground:    #ffffff;
+    --ink:       #14181f;
+    --muted:     #66707f;
+    --rule:      #e3e6ec;
+    --rule-firm: #b9c0cc;
+    --band:      #f4f6f9;
+    --accent:    #1f4e79;
+    --negative:  #94322f;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:    #10131a;
+      --ink:       #e8ecf3;
+      --muted:     #8f99a9;
+      --rule:      #242a35;
+      --rule-firm: #3c4553;
+      --band:      #171c25;
+      --accent:    #7fb0dd;
+      --negative:  #e08c86;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:    #10131a;
+    --ink:       #e8ecf3;
+    --muted:     #8f99a9;
+    --rule:      #242a35;
+    --rule-firm: #3c4553;
+    --band:      #171c25;
+    --accent:    #7fb0dd;
+    --negative:  #e08c86;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    margin: 0;
+    padding: 3rem 1.25rem 4rem;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .sheet {
+    max-width: 46rem;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2.25rem;
+  }
+
+  header { display: flex; flex-direction: column; gap: .35rem; }
+
+  .eyebrow {
+    font-size: .72rem;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  h1 {
+    font-family: "Source Serif 4", Georgia, serif;
+    font-size: 2rem;
+    font-weight: 600;
+    letter-spacing: -.01em;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .period { color: var(--muted); font-size: .9rem; }
+
+  section { display: flex; flex-direction: column; gap: .6rem; }
+
+  h2 {
+    font-size: .72rem;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+    margin: 0;
+    padding-bottom: .45rem;
+    border-bottom: 1px solid var(--rule-firm);
+  }
+
+  .ledger { width: 100%; border-collapse: collapse; }
+
+  .ledger td {
+    padding: .5rem 0;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: baseline;
+  }
+
+  .ledger tr:last-child td { border-bottom: none; }
+
+  .concept { padding-right: 1rem; }
+
+  .detail {
+    display: block;
+    font-size: .82rem;
+    color: var(--muted);
+    margin-top: .1rem;
+  }
+
+  /* Las cifras se leen en columna: mismo ancho por digito o no cuadran. */
+  .amount {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    white-space: nowrap;
+    width: 8.5rem;
+  }
+
+  .out { color: var(--negative); }
+
+  tr.subtotal td {
+    border-top: 1px solid var(--rule-firm);
+    border-bottom: none;
+    padding-top: .6rem;
+    font-weight: 600;
+  }
+
+  tr.result td {
+    border-top: 2px solid var(--ink);
+    border-bottom: none;
+    padding-top: .7rem;
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+
+  .split { background: var(--band); padding: 1.1rem 1.25rem; }
+  .split .ledger td { border-bottom: 1px solid var(--rule); }
+  .split .ledger tr:last-child td { border-bottom: none; }
+  .split .amount { font-size: 1.15rem; font-weight: 500; }
+  .share { color: var(--muted); font-size: .82rem; margin-left: .5rem; }
+
+  /* El importe a transferir es la unica cifra sobre la que alguien actua.
+     Los sumandos se leen en cuerpo normal; el total, destacado. */
+  .transfer .amount { font-size: 1rem; font-weight: 400; }
+  .transfer tr.result td {
+    border-top: 2px solid var(--ink);
+    padding-top: .7rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+  }
+
+  footer {
+    border-top: 1px solid var(--rule);
+    padding-top: 1rem;
+    font-size: .82rem;
+    color: var(--muted);
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+  }
+
+  footer b { color: var(--ink); font-weight: 500; }
+
+  a { color: var(--accent); }
+
+  @media (max-width: 30rem) {
+    .amount { width: 6.5rem; font-size: .9rem; }
+    h1 { font-size: 1.6rem; }
+  }
+
+  /* Al imprimir o exportar a PDF se fuerza la paleta clara: en papel, el
+     tema oscuro sale como un rectangulo negro o directamente en blanco. */
+  @media print {
+    :root, :root[data-theme="dark"] {
+      --ground:    #ffffff;
+      --ink:       #14181f;
+      --muted:     #66707f;
+      --rule:      #e3e6ec;
+      --rule-firm: #b9c0cc;
+      --band:      #f4f6f9;
+      --accent:    #1f4e79;
+      --negative:  #94322f;
+    }
+    body { padding: 0; font-size: 9.5pt; line-height: 1.4; }
+    .sheet { max-width: none; gap: .68rem; }
+    section { gap: .4rem; }
+    section, .split { break-inside: avoid; }
+    .ledger td { padding: .28rem 0; }
+    h1 { font-size: 1.35rem; }
+    h2 { padding-bottom: .3rem; }
+    .split { padding: .7rem .95rem; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .split .amount { font-size: 1rem; }
+    .transfer tr.result td { font-size: 1.1rem; padding-top: .5rem; }
+    footer { padding-top: .5rem; gap: .2rem; font-size: .74rem; }
+    .detail { font-size: .78rem; }
+  }
+
+  @page { size: A4; margin: 15mm 16mm; }
+</style>
+
+
+<div class="sheet">
+
+  <header>
+    <span class="eyebrow">Liquidaci&oacute;n de comisi&oacute;n &middot; Closer</span>
+    <h1>Cierre de agosto 2026</h1>
+    <span class="period">YouTube Faceless &middot; importes en euros</span>
+  </header>
+
+  <section>
+    <h2>Ventas cerradas</h2>
+    <table class="ledger">
+      <tr>
+        <td class="concept">Venta 1</td>
+        <td class="amount">1.470,00</td>
+      </tr>
+      <tr>
+        <td class="concept">Venta 2</td>
+        <td class="amount">1.711,00</td>
+      </tr>
+      <tr class="subtotal">
+        <td class="concept">Total ventas</td>
+        <td class="amount">3.181,00</td>
+      </tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>C&aacute;lculo de la comisi&oacute;n</h2>
+    <table class="ledger">
+      <tr>
+        <td class="concept">
+          Base de c&aacute;lculo
+          <span class="detail">total de ventas, descontados los costes de software del mes y las deducciones previas</span>
+        </td>
+        <td class="amount">2.919,19</td>
+      </tr>
+      <tr class="result">
+        <td class="concept">
+          Comisi&oacute;n del closer
+          <span class="detail">10 % sobre 2.919,19</span>
+        </td>
+        <td class="amount">291,92</td>
+      </tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>Total a cobrar</h2>
+    <div class="split transfer">
+      <table class="ledger">
+        <tr class="result">
+          <td class="concept">Comisi&oacute;n de agosto de 2026</td>
+          <td class="amount">291,92</td>
+        </tr>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <span>
+      <b>Periodo</b> &middot; ventas cerradas entre el 1 y el 31 de agosto de 2026.
+    </span>
+    <span>
+      <b>Base de c&aacute;lculo</b> &middot; la comisi&oacute;n se aplica sobre el importe
+      de ventas una vez descontados los costes de software del mes y las
+      deducciones previas, no sobre el total facturado.
+    </span>
+  </footer>
+
+</div>
